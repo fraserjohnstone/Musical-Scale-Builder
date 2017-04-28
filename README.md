@@ -46,7 +46,7 @@ the algorithm used here.
 
 This application was developed to run on Windows with Python 3 installed.
 
-To start the program simply run the file 'scale_builder.py' in the root directory. If Python has been 
+To start the program simply run the file 'scale_builder.py'. If Python has been 
 added to your PATH then you can simply run the 'start.bat' file included. 
 
 To display a scale, all you need to do is type it into the command prompt in the format 'root-note mode-type'. For Example:

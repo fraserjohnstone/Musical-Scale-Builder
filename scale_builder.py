@@ -16,12 +16,12 @@ be represented as degrees 1, 2, flat 3, 4, 5, flat 6, flat 7, and 8 of A Major.
 In the definitions module we have a dictionary of major scales (one for each root), and a dictionary of mode definitions
 (including the degrees of the major scale included, and any modifier). We use these together to build the ussers mode.
   
-For usage instructions and more detailed information please see the README file in the root directory.
+For usage instructions and more detailed information please see the README file..
 """
 import os
 import re
 
-from scale_builder import definitions
+import definitions
 
 
 def show_instructions():
@@ -333,6 +333,8 @@ def display_result_to_user(result, scale_name):
         print('{}: {}'.format(scale_name.title(), result))
     else:
         print(result)
+
+    # print a divider
     print()
     print('---------------------------------------------------------------------------------------------')
     print()
