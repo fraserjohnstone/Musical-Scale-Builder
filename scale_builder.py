@@ -141,7 +141,7 @@ def validate_user_input(user_input):
         return False
 
     # we have the root, modifier and mode so return these as a list
-    return root, modifier, mode
+    return [root, modifier, mode]
 
 
 def create_scale(scale_elements, scale_name):
@@ -155,7 +155,7 @@ def create_scale(scale_elements, scale_name):
       4. prepare the scale for display to the user.
     
     :param scale_elements: list of strings with length 3. [root, modifier, mode] (modifier may be empty string)
-    :param scale_name:     string. The user input - should be scale name but may be none if the input is not valid.
+    :param scale_name:     string. The user input - should be scale name but may be None if the input is not valid.
     """
     # get the root with modifier
     full_root = ''.join(scale_elements[:2])
@@ -223,60 +223,40 @@ def modify_note(note, modifier):
 
 def raise_note(note):
     """
-    Raises the note passed in by one semitone. The existing modifier can be extracted with note[1:] which could 
-    potentially be '-', '--', '+', '++'.
+    Raises the note passed in by one semitone.
 
     :param note:     The note to be raised
     :return: string: A note 1 semitone higher than the one passed in
     """
-    # initially define raised_note as the passed in note without any modifier
-    raised_note = note[0]
+    # if the note involves '-' then all we need to do is trim the last character from the string
+    if '-' in note:
+        raised_note = note[:-1]
 
-    # if the length of note is > 1 then this means there is an existing modifier so check for which this could be and
-    # act accordingly
-    if len(note) > 1:
-        if note[1:] == '--':
-            raised_note = ''.join([raised_note, '-'])
-        elif note[1:] == '-':
-            # we already have a note with no modifier so do nothing
-            pass
-        elif note[1:] == '+':
-            raised_note = ''.join([raised_note, '++'])
-        elif note[1:] == '++':
-            raised_note = ''.join([raised_note, '+++'])
+    # if the note does not involve '-' then all we need to do is append '+' to the end of the string
     else:
-        # the note passed in does not have a modifier so simply raise by adding a single sharp
-        raised_note = ''.join([raised_note, '+'])
+        as_list = list(note)
+        as_list.append('+')
+        raised_note = ''.join(as_list)
 
     return raised_note
 
 
 def lower_note(note):
     """
-    the note passed in by one semitone. The existing modifier can be extracted with note[1:] which could 
-    potentially be '-', '--', '+', '++'.
+    Lowers the note passed in by one semitone.
 
-    :param note:     The note to be lowered
+    :param note:     string: The note to be lowered
     :return: string: A note 1 semitone lower than the one passed in
     """
-    # initially define raised note as the passed in note without any modifier
-    lowered_note = note[0]
+    # if the note involves '+' then all we need to do is trim the last character from the string
+    if '+' in note:
+        lowered_note = note[:-1]
 
-    # if the length of note is > 1 then this means there is an existing modifier so check for which this could be and
-    # act accordingly
-    if len(note) > 1:
-        if note[1:] == '++':
-            lowered_note = ''.join([lowered_note, '+'])
-        elif note[1:] == '+':
-            # we already have a note with no modifier so do nothing
-            pass
-        elif note[1:] == '-':
-            lowered_note = ''.join([lowered_note, '--'])
-        elif note[1:] == '--':
-            lowered_note = ''.join([lowered_note, '---'])
+    # if the note does not involve '+' then all we need to do is append '-' to the end of the string
     else:
-        # the note passed in does not have a modifier so simply lower by adding a single flat
-        lowered_note = ''.join([lowered_note, '-'])
+        as_list = list(note)
+        as_list.append('-')
+        lowered_note = ''.join(as_list)
 
     return lowered_note
 
@@ -334,7 +314,8 @@ def display_result_to_user(result, scale_name):
     else:
         print(result)
 
-    # print a divider
+
+def print_divider():
     print()
     print('---------------------------------------------------------------------------------------------')
     print()
@@ -375,6 +356,9 @@ def main():
                 create_scale(scale_elements, user_input)
             else:
                 display_result_to_user('Please enter a valid scale such as \'C Sharp Harmonic Minor\'', None)
+
+            # print a divider for aesthetics
+            print_divider()
 
 
 if __name__ == '__main__':
