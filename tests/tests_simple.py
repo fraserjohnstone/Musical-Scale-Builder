@@ -2,7 +2,7 @@ import unittest
 import scale_builder
 
 
-class TestSB(unittest.TestCase):
+class TestScaleBuilder(unittest.TestCase):
     def setUp(self):
         pass
 
