@@ -1,6 +1,9 @@
 """
 This application allows the user to type in a musical scale and be shown all of the notes involved.
 
+The user input is converted to lowercase as soon as is read so all of the strings we deal with until we display the
+scale to the user are lowercase.
+
 Throughout the code the following definitions are used:
 
   - mode:      An arrangement of tones and semi-tones. Major and Minor are 2 commonly used modes, but there are many 
@@ -40,11 +43,9 @@ def show_instructions():
           
         Type 'Show Modes' to see a complete list of available modes.
         
-        To exit the application enter '-1'
-        
----------------------------------------------------------------------------------------------
-    """
+        To exit the application enter '-1'"""
     print(msg)
+    print_divider()
 
 
 def show_possible_modes():
@@ -64,11 +65,10 @@ def show_possible_modes():
         25.Major             26.Major Bebop       27.Major Locrian     28.Major Pentatonic
         29.Melodic Minor     30.Minor Pentatonic  31.Mixolydian        32.Melodic Minor
         33.Neapolitan Major  34.Neapolitan Minor  35.Persian           36.Phrygian Dominant
-        37.Phrygian          38.Prometheus        39.Tritone           40.Wholetone
+        37.Phrygian          38.Prometheus        39.Tritone           40.Wholetone"""
 
----------------------------------------------------------------------------------------------
-    """
     print(msg)
+    print_divider()
 
 
 def validate_user_input(user_input):
@@ -77,7 +77,8 @@ def validate_user_input(user_input):
     
     in the above format, root-note must take the form:
       
-      - The letter a-g followed by a space and the words 'flat' or 'sharp'. this is not case sensitive
+      - The letter a-g followed by a space and the words 'flat' or 'sharp'. This is not case sensitive as the input
+        is all made lower case.
           
     If the input validates then we extract the root, any possible modifier, and mode as three separate variables. 
     
@@ -92,19 +93,16 @@ def validate_user_input(user_input):
       
     If either step 1, or step 3 above does not evaluate to True then return False and exit the function.
     
-    :param user_input: 
+    :param user_input: This has already been converted to lowercase
       
     :return False if user input does not validate.
     
     or
     
     :return root:      string. The root of the scale the user would like to see
-    :return modifier:  string. May be '', 'sharp, or 'flat'
+    :return modifier:  string. May be '', '+', or '-'
     :return mode:      string. Valid musical mode as defined in definitions.mode_types
     """
-    # convert the user input to all lower case
-    user_input = str.lower(user_input)
-
     # if the input is valid we will return the root, modifier and mode so create holders fo these
     root = ''
     mode = ''
@@ -144,7 +142,7 @@ def validate_user_input(user_input):
     return [root, modifier, mode]
 
 
-def create_scale(scale_elements, scale_name):
+def create_scale(scale_elements):
     """
     This function is only called if the user has entered a valid scale. We will create the scale through the following 
     algorithm:
@@ -155,7 +153,7 @@ def create_scale(scale_elements, scale_name):
       4. prepare the scale for display to the user.
     
     :param scale_elements: list of strings with length 3. [root, modifier, mode] (modifier may be empty string)
-    :param scale_name:     string. The user input - should be scale name but may be None if the input is not valid.
+    :return string: The scale that we want to display
     """
     # get the root with modifier
     full_root = ''.join(scale_elements[:2])
@@ -193,8 +191,9 @@ def create_scale(scale_elements, scale_name):
     # prepare the scale for display
     prepared_scale = prep_scale_for_display(scale)
 
-    # display the prepared scale to the user
-    display_result_to_user(prepared_scale, scale_name)
+    # return the scale as a string
+    print(prepared_scale)
+    return prepared_scale
 
 
 def modify_note(note, modifier):
@@ -214,49 +213,57 @@ def modify_note(note, modifier):
     # the modifier is not None so find out if we need to raise or lower the note
     new_note = ''
     if '+' in modifier:
-        new_note = raise_note(note)
+        new_note = raise_note(note, len(modifier))
     elif '-' in modifier:
-        new_note = lower_note(note)
+        new_note = lower_note(note, len(modifier))
 
     return new_note
 
 
-def raise_note(note):
+def raise_note(note, num_semitones):
     """
-    Raises the note passed in by one semitone.
+    Raises the note passed in by the number of semitones in num_semitones.
 
-    :param note:     The note to be raised
-    :return: string: A note 1 semitone higher than the one passed in
+    :param note:         The note to be raised
+    :param num_semitones: The number of times the note passed in is to be lowered
+    :return: string:     A note 1 semitone higher than the one passed in
     """
-    # if the note involves '-' then all we need to do is trim the last character from the string
-    if '-' in note:
-        raised_note = note[:-1]
+    # start with the note passed in
+    raised_note = note
+    for i in range(num_semitones):
+        # if the note involves '-' then all we need to do is trim the last character from the string
+        if '-' in raised_note:
+            raised_note = raised_note[:-1]
 
-    # if the note does not involve '-' then all we need to do is append '+' to the end of the string
-    else:
-        as_list = list(note)
-        as_list.append('+')
-        raised_note = ''.join(as_list)
+        # if the note does not involve '-' then all we need to do is append '+' to the end of the string
+        else:
+            as_list = list(raised_note)
+            as_list.append('+')
+            raised_note = ''.join(as_list)
 
     return raised_note
 
 
-def lower_note(note):
+def lower_note(note, num_semitones):
     """
-    Lowers the note passed in by one semitone.
+    Lowers the note passed in by the number of semitones in num_semitones.
 
-    :param note:     string: The note to be lowered
-    :return: string: A note 1 semitone lower than the one passed in
+    :param note:          string: The note to be lowered
+    :param num_semitones: The number of times the note passed in is to be lowered
+    :return: string:      A note 1 semitone lower than the one passed in
     """
-    # if the note involves '+' then all we need to do is trim the last character from the string
-    if '+' in note:
-        lowered_note = note[:-1]
+    # start with the note passed in
+    lowered_note = note
+    for i in range(num_semitones):
+        # if the note involves '+' then all we need to do is trim the last character from the string
+        if '+' in lowered_note:
+            lowered_note = lowered_note[:-1]
 
-    # if the note does not involve '+' then all we need to do is append '-' to the end of the string
-    else:
-        as_list = list(note)
-        as_list.append('-')
-        lowered_note = ''.join(as_list)
+        # if the note does not involve '+' then all we need to do is append '-' to the end of the string
+        else:
+            as_list = list(lowered_note)
+            as_list.append('-')
+            lowered_note = ''.join(as_list)
 
     return lowered_note
 
@@ -270,7 +277,7 @@ def prep_scale_for_display(scale):
     :param scale:   list. The scale the user would like to see as a list of strings (one for each note potentially with
                     modifiers). 
     :return string: the scale formatted as a single string of uppercase letters as notes with modifiers, separated by 
-                    commas, for example C major would return as 'B, C#, D#, E, F#, G#, A#, B'
+                    commas, for example B major would return as 'B, C#, D#, E, F#, G#, A#, B'
     """
     # create a new list holder for the prepared scale
     new_scale = []
@@ -291,34 +298,63 @@ def prep_scale_for_display(scale):
     return ''.join(new_scale)[:-2]
 
 
-def display_result_to_user(result, scale_name):
+def get_user_friendly_result(scale, scale_name):
     """
-    :param result:     string. Either the scale that the user wants to see or if there has been a problem, a message to 
+    :param scale:      string. Either the scale that the user wants to see or if there has been a problem, a message to 
                        the user detailing the issue.
     :param scale_name: string. The user input - should be scale name but may be None if the input is not valid.
     """
-    # check if the scale name has been passed in
-    if scale_name is not None:
-        # replace the words sharp or flat with symbols
-        if ' sharp' in scale_name:
-            scale_name = re.sub(' sharp', '#', scale_name)
-        elif ' flat' in scale_name:
-            scale_name = re.sub(' flat', 'b', scale_name)
+    # replace the words sharp or flat with symbols
+    if ' sharp' in scale_name:
+        scale_name = re.sub(' sharp', '#', scale_name)
+    elif ' flat' in scale_name:
+        scale_name = re.sub(' flat', 'b', scale_name)
 
-        # if the scale type is simply minor we will be showing the harmonic minor so change this in the user input
-        if 'minor' in scale_name and 'harmonic' not in scale_name and 'melodic' not in scale_name and 'natural' not in scale_name:
-            scale_name = re.sub('minor', 'harmonic minor', scale_name)
+    # if the scale type is simply minor we will be showing the harmonic minor so change this in the user input
+    if 'minor' in scale_name and 'harmonic' not in scale_name and \
+                    'melodic' not in scale_name and \
+                    'natural' not in scale_name:
+        scale_name = re.sub('minor', 'harmonic minor', scale_name)
 
-        # display the scale to the user
-        print('{}: {}'.format(scale_name.title(), result))
-    else:
-        print(result)
+    # return the full string in the format 'scale name: scale'
+    return '{}: {}'.format(scale_name.title(), scale)
 
 
 def print_divider():
     print()
     print('---------------------------------------------------------------------------------------------')
     print()
+
+
+def get_user_input():
+    # create a variable to hold the user input
+    user_input = ""
+
+    # prompt the user to enter a scale
+    while user_input != '-1':
+        # get user input as all lower case
+        user_input = str.lower(input('Enter a scale: ').lower())
+        if user_input != '-1':
+            # clear the screen, validate, and then process the user input
+            os.system('cls')
+
+            # show the instructions again
+            show_instructions()
+
+            # validate the user input and try to get a list of the root, modifier (can be '') and mode
+            scale_elements = validate_user_input(user_input)
+
+            # if the user has entered a valid option then process and display it, if not then let them know
+            if user_input == 'show modes':
+                show_possible_modes()
+            elif scale_elements:
+                scale = create_scale(scale_elements)
+                print(get_user_friendly_result(scale, user_input))
+            else:
+                print('Please enter a valid scale such as \'C Sharp Harmonic Minor\'')
+
+            # print a divider for aesthetic purposes
+            print_divider()
 
 
 def main():
@@ -333,32 +369,8 @@ def main():
     # initially show instructions
     show_instructions()
 
-    # create a variable to hold the user input
-    user_input = ""
-
-    # prompt the user to enter a scale
-    while user_input != '-1':
-        user_input = input('Enter a scale: ')
-        if user_input != '-1':
-            # clear the screen, validate, and then process the user input
-            os.system('cls')
-
-            # show the instructions again
-            show_instructions()
-
-            # validate the user input and try to get a list of the root, modifier (can be '') and mode
-            scale_elements = validate_user_input(user_input)
-
-            # if the user has entered a valid option then process
-            if user_input == 'show modes':
-                show_possible_modes()
-            elif scale_elements:
-                create_scale(scale_elements, user_input)
-            else:
-                display_result_to_user('Please enter a valid scale such as \'C Sharp Harmonic Minor\'', None)
-
-            # print a divider for aesthetics
-            print_divider()
+    # get the user input
+    get_user_input()
 
 
 if __name__ == '__main__':

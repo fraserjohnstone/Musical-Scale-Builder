@@ -8,20 +8,24 @@ class TestScaleBuilder(unittest.TestCase):
 
     def test_validate_user_input(self):
         """
-        If user input is valid then a list of length 3 should be returned. If invalid False should be returned 
+        If user input is valid then a list of length 3 should be returned. If invalid False should be returned. The
+        user input passed to the function validate_user_input is already lowercase so we will only use lowercase 
+        fixtures.
         """
-        valid_input = [
-            'c sharp lydian augmented',
-            'C Major',
-            'F Sharp Locrian',
-            'B Melodic Minor',
-            'f sharp mixolydian',
-            'g minor',
-            'e Major',
-            'E mAjor'
+        # list of tuples of the form (input fixture, expected output)
+        valid_fixtures = [
+            ('c sharp lydian augmented', ['c', '+', 'lydian augmented']),
+            ('c major', ['c', '', 'major']),
+            ('f sharp locrian', ['f', '+', 'locrian']),
+            ('b melodic minor', ['b', '', 'melodic minor']),
+            ('f sharp mixolydian', ['f', '+', 'mixolydian']),
+            ('g minor', ['g', '', 'harmonic minor']),
+            ('e major', ['e', '', 'major']),
+            ('e major', ['e', '', 'major'])
         ]
 
-        invalid_input = [
+        # potentially invalid user input
+        invalid_fixtures = [
             'C# Minor',
             'B b Major',
             'C+ minor',
@@ -32,76 +36,94 @@ class TestScaleBuilder(unittest.TestCase):
             'Aeolian on A'
         ]
 
-        for case in valid_input:
-            self.assertTrue(scale_builder.validate_user_input(case))
+        for fixture in valid_fixtures:
+            self.assertEquals(scale_builder.validate_user_input(fixture[0]), fixture[1])
 
-        for case in invalid_input:
-            self.assertFalse(scale_builder.validate_user_input(case))
+        for fixture in invalid_fixtures:
+            self.assertFalse(scale_builder.validate_user_input(fixture))
 
-    def test_raise_note(self):
+    def test_modify_note(self):
         """
-        The note entered should be one higher than the one returned 
+        The modify_note function is called from within the create_scale() function at which point the input has already
+        been validated so we will only test valid fixtures here.
+        
+        modify_note() uses the functions raise_note() and lower_note() and as such are tested here. We will not 
+        explicitly test these two methods.
         """
-        valid_input_output = [
-            ('a----', 'a---'),
-            ('a---', 'a--'),
-            ('a--', 'a-'),
-            ('a-', 'a'),
-            ('a', 'a+'),
-            ('a+', 'a++'),
-            ('a++', 'a+++'),
-            ('a+++', 'a++++')
+        # list of tuples of the form (input fixture, expected output)
+        valid_fixtures = [
+            # single semitone modifications
+            ('a', '-', 'a-'),
+            ('b', '+', 'b+'),
+            ('a--', '+', 'a-'),
+            ('f++', '-', 'f+'),
+            ('c', '+', 'c+'),
+            ('a+', '-', 'a'),
+            ('b-', '+', 'b'),
+
+            # multiple semitone modifications
+            ('c', '++', 'c++'),
+            ('b', '----', 'b----'),
+            ('g--', '++', 'g'),
+            ('g+', '---', 'g--'),
         ]
 
-        invalid_input_output = [
-            ('a----', 'a--'),
-            ('a---', 'a-'),
-            ('a--', 'a'),
-            ('a-', 'a+'),
-            ('a', 'a-'),
-            ('a+', 'a+'),
-            ('a++', 'a-+'),
-            ('a+++', 'a--')
-        ]
+        for fixture in valid_fixtures:
+            self.assertEqual(scale_builder.modify_note(fixture[0], fixture[1]), fixture[2])
 
-        for case in valid_input_output:
-            self.assertEqual(scale_builder.raise_note(case[0]), case[1])
-
-        for case in invalid_input_output:
-            self.assertNotEqual(scale_builder.raise_note(case[0]), case[1])
-
-    def test_lower_note(self):
+    def test_create_scale(self):
         """
-        The note entered should be one lower than the one returned 
+        The function create_scale() is only called when the data that the user has given has been validated in the
+        function validate_user_input() which is tested above so no need to test invalid fixtures here.
         """
-        valid_input_output = [
-            ('a++++', 'a+++'),
-            ('a+++', 'a++'),
-            ('a++', 'a+'),
-            ('a+', 'a'),
-            ('a', 'a-'),
-            ('a-', 'a--'),
-            ('a--', 'a---'),
-            ('a---', 'a----')
+        # list of tuples of the form (input fixture, expected output)
+        valid_fixtures = [
+            (['c', '', 'major'], 'C, D, E, F, G, A, B, C'),
+            (['b', '-', 'lydian augmented'], 'Bb, C, D, E, F#, G, A, Bb'),
+            (['f', '', 'harmonic minor'], 'F, G, Ab, Bb, C, Db, E, F'),
+            (['g', '', 'major'], 'G, A, B, C, D, E, F#, G'),
+            (['a', '+', 'harmonic minor'], 'A#, B#, C#, D#, E#, F#, G##, A#')
         ]
 
-        invalid_input_output = [
-            ('a++++', 'a++'),
-            ('a+++', 'a+'),
-            ('a++', 'a'),
-            ('a+', 'a-'),
-            ('a', 'a+'),
-            ('a-', 'a-'),
-            ('a--', 'a+-'),
-            ('a---', 'a++')
+        for fixture in valid_fixtures:
+            self.assertEqual(scale_builder.create_scale(fixture[0]), fixture[1])
+
+    def test_prep_scale_for_display(self):
+        """
+        the list passed into the function is a list of lowercase letters with potential modifiers '+' and '-'. The 
+        output is a single string of uppercase letters with modifiers '#' and 'b' separated by commas. 
+        
+        The input to this function is given by the method create_scale() and will be valid so no need to test invalid
+        fixtures
+        """
+        # list of tuples of the form (input fixture, expected output)
+        valid_fixtures = [
+            (['c', 'd', 'e', 'f', 'g', 'a', 'b', 'c'], 'C, D, E, F, G, A, B, C'),
+            (['f', 'g', 'a-', 'b-', 'c', 'd-', 'e', 'f'], 'F, G, Ab, Bb, C, Db, E, F'),
+            (['a', 'b', 'c', 'd', 'e', 'f', 'g', 'a'], 'A, B, C, D, E, F, G, A'),
+            (['e-', 'f', 'g', 'a-', 'b-', 'c', 'd', 'e-'], 'Eb, F, G, Ab, Bb, C, D, Eb'),
+            (['g+', 'a+', 'b+', 'c+', 'd+', 'e+', 'f++', 'g+'], 'G#, A#, B#, C#, D#, E#, F##, G#'),
         ]
 
-        for case in valid_input_output:
-            self.assertEqual(scale_builder.lower_note(case[0]), case[1])
+        for fixture in valid_fixtures:
+            self.assertEqual(scale_builder.prep_scale_for_display(fixture[0]), fixture[1])
 
-        for case in invalid_input_output:
-            self.assertNotEqual(scale_builder.lower_note(case[0]), case[1])
+    def test_get_user_friendly_result(self):
+        """
+        The function should takes a scale which has been processed by prep_scale_for_display() which has been tested 
+        above so we will not test for invalid fixtures.
+        """
+        # list of tuples of the form (input fixture, expected output)
+        valid_fixtures = [
+            ('C, D, E, F, G, A, B, C', 'c major', 'C Major: C, D, E, F, G, A, B, C'),
+            ('F, G, Ab, Bb, C, Db, E, F', 'f minor', 'F Harmonic Minor: F, G, Ab, Bb, C, Db, E, F'),
+            ('A, B, C, D, E, F, G, A', 'a aeolian', 'A Aeolian: A, B, C, D, E, F, G, A'),
+            ('Eb, F, Gb, Ab, Bb, Cb, D, Eb', 'e flat minor', 'Eb Harmonic Minor: Eb, F, Gb, Ab, Bb, Cb, D, Eb'),
+            ('G#, A#, B#, C#, D#, E#, F##, G#', 'g sharp major', 'G# Major: G#, A#, B#, C#, D#, E#, F##, G#'),
+        ]
 
+        for fixture in valid_fixtures:
+            self.assertEqual(scale_builder.get_user_friendly_result(fixture[0], fixture[1]), fixture[2])
 
 if __name__ == '__main__':
     unittest.main()
