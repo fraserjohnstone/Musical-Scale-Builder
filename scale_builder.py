@@ -12,14 +12,14 @@ Throughout the code the following definitions are used:
   - modifier:  Musical sharp or flat symbol. For example F# (read as 'F sharp') has the root F and modifier sharp.
                in code sharps and flats will be represented by '+', and '-' respectively.
   
-In short this program works by altering the standard Major mode (also called Ionian mode). Any mode can be represented 
+In short this algorithm works by altering the standard Major mode (also called Ionian mode). Any mode can be represented 
 as a modification of the Major that shares the same root note. For example the Aeolian mode with the root note A can 
-be represented as degrees 1, 2, flat 3, 4, 5, flat 6, flat 7, and 8 of A Major.
+be represented as degrees 1, 2, flat 3, 4, 5, flat 6, flat 7, and 8 of the A Major.
 
 In the definitions module we have a dictionary of major scales (one for each root), and a dictionary of mode definitions
-(including the degrees of the major scale included, and any modifier). We use these together to build the ussers mode.
+(including the degrees of the major scale included, and any modifier). We use these together to build the desired mode.
   
-For usage instructions and more detailed information please see the README file..
+For usage instructions please see the README file.
 """
 import os
 import re
@@ -38,7 +38,7 @@ def show_instructions():
           - 'C Major'                     (shows: C, D, E, F, G, A, B, C)
           - 'F Sharp Harmonic Minor'      (shows: F#, G#, A, B, C#, D, E#, F#)
           - 'G Lydian'                    (shows: G, A, B, C#, D, E, F#, G) 
-          - 'F Major'                     (shows: F, G, A, Bb, C, D, E, F)
+          - 'B Flat Major'                (shows: Bb, C, D, Eb, F, G, A, Bb)
           - 'C Sharp Melodic Minor'       (shows: C#, D#, E, F#, G#, A#, B#, C#, B, A, G#, F#, E, D#, C#)
           
         Type 'Show Modes' to see a complete list of available modes.
@@ -73,22 +73,21 @@ def show_possible_modes():
 
 def validate_user_input(user_input):
     """    
-    Checks that the user has entered a valid scale. The input should be for the form 'root-note mode-type'.
+    Checks that the user has entered a valid scale. The input should be of the form 'root-note mode-type'.
     
-    in the above format, root-note must take the form:
+    In the above format, root-note must take the form:
       
-      - The letter a-g followed by a space and the words 'flat' or 'sharp'. This is not case sensitive as the input
-        is all made lower case.
+      - one single letter, a-g, followed by a space and optionally the word 'flat' or 'sharp'. This is not case sensitive.
           
     If the input validates then we extract the root, any possible modifier, and mode as three separate variables. 
     
     If the user only enters 'minor' as the mode, this is ambiguous and it is presumed they want the harmonic minor. We 
     will change this after the mode has been extracted.
     
-    The validation consists of the following checks:
+    Validation consists of the following checks:
     
       1. Does the input begin with a valid musical note (letters a-g) followed by a space?
-      2. Is there a modifier ('flat' or 'sharp')
+      2. Is there a single modifier (the word 'flat' or 'sharp')
       3. Is there a mode and is it valid?
       
     If either step 1, or step 3 above does not evaluate to True then return False and exit the function.
@@ -108,15 +107,25 @@ def validate_user_input(user_input):
     mode = ''
     modifier = ''
 
+    # initially replace multiple white spaces with single space
+    user_input = ' '.join(user_input.split())
+
     # define pattern to search for a single letter followed by a space at the beginning of the user input
     if not re.match('([a-g])\\s', user_input[:2]):
         # user input is invalid so return False
         return False
 
-    # input is valid so extract the root
+    # input has a valid root so extract it.
     root = user_input[0]
 
-    # check for a modifier and extract this. We can extract the mode here as well.
+    # check for only a single modifier. if there are multiple in any combination then validation fails so return False.
+    if user_input.count('sharp') > 1 or \
+            user_input.count('flat') > 1 or \
+            user_input.count('sharp flat') > 0 or \
+            user_input.count('flat sharp') > 0:
+        return False
+
+    # check for a modifier and extract it. We will extract the mode here as well.
     if re.match('sharp', user_input[2:]):
         modifier = '+'
         mode = re.sub('sharp', '', user_input[2:])
@@ -126,10 +135,10 @@ def validate_user_input(user_input):
     else:
         mode = user_input[2:]
 
-    # remove any unwanted whitespace from the mode
+    # remove any unwanted whitespace from the mode.
     mode = mode.strip()
 
-    # check the 'mode' for just 'minor' and change to 'harmonic minor' if need be
+    # check the 'mode' for just 'minor' and change to 'harmonic minor' if need be.
     if 'minor' in mode and 'harmonic' not in mode and 'melodic' not in mode and 'natural' not in mode:
         mode = 'harmonic minor'
 
@@ -138,7 +147,7 @@ def validate_user_input(user_input):
         # this is not a valid mode so return False
         return False
 
-    # we have the root, modifier and mode so return these as a list
+    # we have a valid root, modifier and mode so return these as a list
     return [root, modifier, mode]
 
 
@@ -148,11 +157,12 @@ def create_scale(scale_elements):
     algorithm:
     
       1. Find the major scale that shares the root that the user has entered.
-      2. Create a new scale using the degrees defined in 'definitions.mode_definitions'.
-      3. Apply any modifiers to the scale again using 'definitions.mode_definitions'.
+      2. Create a new scale upon this root using the degrees of the major scale as defined in 
+         'definitions.mode_definitions'.
+      3. Apply any modifiers to our newly build scale, again using 'definitions.mode_definitions'.
       4. prepare the scale for display to the user.
     
-    :param scale_elements: list of strings with length 3. [root, modifier, mode] (modifier may be empty string)
+    :param scale_elements: list of strings with length 3. [root, modifier, mode] (modifier may be an empty string)
     :return string: The scale that we want to display
     """
     # get the root with modifier
@@ -170,7 +180,7 @@ def create_scale(scale_elements):
     # get the degrees of the major scale we need to use and populate our empty scale list with these notes
     for degree_and_modifier in mode_definition:
         # extract just the degree (digit) and modifier ('+' or '-') from this degree
-        # the degree is one less than the user entered as we are using it as the position in a list
+        # the degree needs to be one less than the user entered as we are using it as the position in a list
         degree = int(degree_and_modifier[0]) - 1
 
         # modifier may not exist so initialise with None and attempt to change this
@@ -192,13 +202,12 @@ def create_scale(scale_elements):
     prepared_scale = prep_scale_for_display(scale)
 
     # return the scale as a string
-    print(prepared_scale)
     return prepared_scale
 
 
 def modify_note(note, modifier):
     """
-    This function attempts to modify a note if need be. If the modifier is None then we simply return the note that was
+    This function attempts to modify a note if needed. If the modifier is None then we simply return the note that was
     passed in. If the modifier passed in is not None, we first need to find out if the note passed in has an existing
     modifier, then act accordingly.
     
@@ -210,7 +219,7 @@ def modify_note(note, modifier):
     if modifier is None:
         return note
 
-    # the modifier is not None so find out if we need to raise or lower the note
+    # the modifier is not None so find out if we need to raise or lower the note.
     new_note = ''
     if '+' in modifier:
         new_note = raise_note(note, len(modifier))
@@ -224,9 +233,9 @@ def raise_note(note, num_semitones):
     """
     Raises the note passed in by the number of semitones in num_semitones.
 
-    :param note:         The note to be raised
+    :param note:          string: The note to be raised
     :param num_semitones: The number of times the note passed in is to be lowered
-    :return: string:     A note 1 semitone higher than the one passed in
+    :return: string:      A note one or more semitones higher than the one passed in
     """
     # start with the note passed in
     raised_note = note
@@ -250,7 +259,7 @@ def lower_note(note, num_semitones):
 
     :param note:          string: The note to be lowered
     :param num_semitones: The number of times the note passed in is to be lowered
-    :return: string:      A note 1 semitone lower than the one passed in
+    :return: string:      A note one or more semitones lower than the one passed in
     """
     # start with the note passed in
     lowered_note = note
@@ -276,7 +285,7 @@ def prep_scale_for_display(scale):
     
     :param scale:   list. The scale the user would like to see as a list of strings (one for each note potentially with
                     modifiers). 
-    :return string: the scale formatted as a single string of uppercase letters as notes with modifiers, separated by 
+    :return string: The scale formatted as a single string of uppercase letters as notes with modifiers, separated by 
                     commas, for example B major would return as 'B, C#, D#, E, F#, G#, A#, B'
     """
     # create a new list holder for the prepared scale
@@ -327,6 +336,9 @@ def print_divider():
 
 
 def get_user_input():
+    """
+    Repeatedly asks the user for input and acts accordingly. 
+    """
     # create a variable to hold the user input
     user_input = ""
 
@@ -351,7 +363,7 @@ def get_user_input():
                 scale = create_scale(scale_elements)
                 print(get_user_friendly_result(scale, user_input))
             else:
-                print('Please enter a valid scale such as \'C Sharp Harmonic Minor\'')
+                print('Please enter a valid scale such as \'C Sharp Harmonic Minor\', or \'F Major\'')
 
             # print a divider for aesthetic purposes
             print_divider()
@@ -359,7 +371,7 @@ def get_user_input():
 
 def main():
     """
-    Requests user input repeatedly until the user decides to exit the application by entering -1.
+    Requests user input repeatedly until the user decides to exit the application by entering '-1'.
     
     The user input is validated and if it is valid a the scale is created and displayed to the user.
     """

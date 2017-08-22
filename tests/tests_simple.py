@@ -10,9 +10,9 @@ class TestScaleBuilder(unittest.TestCase):
         """
         If user input is valid then a list of length 3 should be returned. If invalid False should be returned. The
         user input passed to the function validate_user_input is already lowercase so we will only use lowercase 
-        fixtures.
+        input when testing valid fixtures.
         """
-        # list of tuples of the form (input fixture, expected output)
+        # valid input. list of tuples of the form (input fixture, expected output)
         valid_fixtures = [
             ('c sharp lydian augmented', ['c', '+', 'lydian augmented']),
             ('c major', ['c', '', 'major']),
@@ -21,10 +21,10 @@ class TestScaleBuilder(unittest.TestCase):
             ('f sharp mixolydian', ['f', '+', 'mixolydian']),
             ('g minor', ['g', '', 'harmonic minor']),
             ('e major', ['e', '', 'major']),
-            ('e major', ['e', '', 'major'])
+            ('e sharp minor', ['e', '+', 'harmonic minor']),
         ]
 
-        # potentially invalid user input
+        # invalid user input
         invalid_fixtures = [
             'C# Minor',
             'B b Major',
@@ -33,7 +33,21 @@ class TestScaleBuilder(unittest.TestCase):
             'Bflatminor',
             'Fsharp minor',
             'scale c minor',
-            'Aeolian on A'
+            'Aeolian on A',
+            'a sharpsharp major',
+            'b flatflat major',
+            'd flatsharp major',
+            'f sharpflat major',
+            'a flat sharp minor',
+            'a flat    sharp minor',
+            'f sharp sharp major',
+            '1',
+            '-1',
+            '\'c major\'',
+            '\'12345\'',
+            '\'1 2 3 4 5\''
+            '%$£',
+            '******',
         ]
 
         for fixture in valid_fixtures:

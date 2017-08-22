@@ -1,5 +1,5 @@
 """
-This module contains dictionaries of various things such as musical mode names etc.
+This module contains dictionaries and lists of various things such as musical mode names etc.
 """
 
 # basic musical notes

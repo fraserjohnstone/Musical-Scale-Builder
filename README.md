@@ -1,5 +1,9 @@
 # Musical Scale Builder
 
+The purpose of this README file is to help musicians to use this software. Whilst touching on the inner workings, this 
+file does not make any great attempt to explain the code or the underlying algorithm in detail. The code is extensively
+commented for that purpose, and offers very clear explanations at each step in the algorithm.
+
 For author details please read the included AUTHORS file. 
 
 For licence details please read the included LICENCE file.
@@ -9,10 +13,7 @@ at fraserjohnstone12345@hotmail.com.
 
 ## The Application
 
-This application provides musicians with an easy way to find out which musical notes are included in a scale.
-
-The purpose of this README file is to aide the use of this program and is not intended to aide developers or explain the code.
-The code is extensively commented for that purpose and offers very clear explanations at each step in the process.
+This application provides musicians with an easy way to find out which musical notes are included in any scale.
 
 More often than not, composers use notes from the common Major and Minor keys, for example, C Major, F# Harmonic Minor, 
 G Major, and so on. 
@@ -24,7 +25,7 @@ a mode with a specific root note.
 
 In Western music, modes come in a huge number of forms, from which Major and Minor are just two. The modes available in this application are listed below, but
 this list is by no means comprehensive. There are undoubtedly many many more, but this application supports all of the common modes
-likely to be encountered and then some.
+likely to be encountered...and then some.
 
 Supported modes:
 
@@ -39,17 +40,32 @@ Supported modes:
     33.Neapolitan Major  34.Neapolitan Minor  35.Persian           36.Phrygian Dominant
     37.Phrygian          38.Prometheus        39.Tritone           40.Wholetone
 
-Each of the modes above can be created by altering degrees of the Major mode with the same tonic which is the general idea behind 
+Each of the modes above can be created by altering degrees of the Major mode with the same root which is the general idea behind 
 the algorithm used here.
+
+## Definitions
+
+Mode - An arrangement of musical intervals.
+
+Scale - Any mode built on a specific root.
+
+Degree - A position in any scale identified by a number. For example, given the scale C Major (C, D, E, F, G, A, B, C), the 3rd degree 
+of the scale would be 'E' and the 6th degree would be 'A'.
+
+Root - The first degree of a scale.
+
+Tonic - Another commonly used term for the first degree of a scale.
+
+Modifier - A sharp or flat.
 
 ## Usage
 
-This application was developed to run on Windows with Python 3 installed.
+This application was developed to run on Windows with Python 3 installed. For help installing python 3 please visit https://docs.python.org/3/using/windows.html
 
 To start the program simply run the file 'scale_builder.py'. If Python has been 
 added to your PATH then you can simply run the 'start.bat' file included. 
 
-To display a scale, all you need to do is type it into the command prompt in the format 'root-note mode-type'. For Example:
+To display the notes of a scale, all you need to do is type it into the command prompt in the format 'root-note mode-type'. For Example:
         
     - 'C Major'                     (shows: C, D, E, F, G, A, B, C)
     - 'F Sharp Harmonic Minor'      (shows: F#, G#, A, B, C#, D, E#, F#)
@@ -58,7 +74,7 @@ To display a scale, all you need to do is type it into the command prompt in the
     - 'C Sharp Melodic Minor'       (shows: C#, D#, E, F#, G#, A#, B#, C#, B, A, G#, F#, E, D#, C#)
     
 The text that you input is not case sensitive, so 'c sharp major' is just as valid as 'C Sharp Major'. It does however need
-to involve spaces between the letter, any sharp or flat, and the mode.
+to involve spaces between the letter, any optional sharp or flat, and the mode.
 
 If you would like to be shown a list of the available modes, just type 'Show Modes'. Again, this input is not case sensitive.
 
@@ -66,6 +82,8 @@ Due to the limitations of the windows command prompt, double sharps, etc are dis
 
     Double Sharp: '##'
     Double Flat: 'bb'
+    
+To exit the application simply close the command window, or enter '-1'.
 
 ## Further Development
 
