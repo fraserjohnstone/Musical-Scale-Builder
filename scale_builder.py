@@ -1,7 +1,7 @@
 """
 This application allows the user to type in a musical scale and be shown all of the notes involved.
 
-The user input is converted to lowercase as soon as is read so all of the strings we deal with until we display the
+The user input is converted to lowercase immediately so all of the strings we deal with until we display the
 scale to the user are lowercase.
 
 Throughout the code the following definitions are used:
@@ -17,7 +17,7 @@ as a modification of the Major that shares the same root note. For example the A
 be represented as degrees 1, 2, flat 3, 4, 5, flat 6, flat 7, and 8 of the A Major.
 
 In the definitions module we have a dictionary of major scales (one for each root), and a dictionary of mode definitions
-(including the degrees of the major scale included, and any modifier). We use these together to build the desired mode.
+(including the degrees of the major scale included, and any modifier). We use these together to build the desired scale.
   
 For usage instructions please see the README file.
 """
@@ -77,7 +77,8 @@ def validate_user_input(user_input):
     
     In the above format, root-note must take the form:
       
-      - one single letter, a-g, followed by a space and optionally the word 'flat' or 'sharp'. This is not case sensitive.
+      - one single letter, a-g, followed by a space and optionally the word 'flat' or 'sharp'. This is not case 
+        sensitive.
           
     If the input validates then we extract the root, any possible modifier, and mode as three separate variables. 
     
@@ -87,12 +88,12 @@ def validate_user_input(user_input):
     Validation consists of the following checks:
     
       1. Does the input begin with a valid musical note (letters a-g) followed by a space?
-      2. Is there a single modifier (the word 'flat' or 'sharp')
+      2. Is there a single modifier (the word 'flat' or 'sharp')?
       3. Is there a mode and is it valid?
       
     If either step 1, or step 3 above does not evaluate to True then return False and exit the function.
     
-    :param user_input: This has already been converted to lowercase
+    :param user_input: string. This has already been converted to lowercase
       
     :return False if user input does not validate.
     
@@ -118,7 +119,8 @@ def validate_user_input(user_input):
     # input has a valid root so extract it.
     root = user_input[0]
 
-    # check for only a single modifier. if there are multiple in any combination then validation fails so return False.
+    # next, check for only a single modifier. if there are multiple in any combination then validation fails so return
+    # False.
     if user_input.count('sharp') > 1 or \
             user_input.count('flat') > 1 or \
             user_input.count('sharp flat') > 0 or \
@@ -159,13 +161,13 @@ def create_scale(scale_elements):
       1. Find the major scale that shares the root that the user has entered.
       2. Create a new scale upon this root using the degrees of the major scale as defined in 
          'definitions.mode_definitions'.
-      3. Apply any modifiers to our newly build scale, again using 'definitions.mode_definitions'.
+      3. Apply any modifiers to our newly built scale, again using 'definitions.mode_definitions'.
       4. prepare the scale for display to the user.
     
     :param scale_elements: list of strings with length 3. [root, modifier, mode] (modifier may be an empty string)
     :return string: The scale that we want to display
     """
-    # get the root with modifier
+    # get the root with modifier (if present)
     full_root = ''.join(scale_elements[:2])
 
     # get the mode definition
@@ -195,7 +197,7 @@ def create_scale(scale_elements):
         scale.append(note)
 
     # add the root to the end of the scale. This is not strictly essential for the scale to be
-    # correctly defined is but expected by musicians
+    # correctly defined, but is expected by musicians
     scale.append(scale[0])
 
     # prepare the scale for display
